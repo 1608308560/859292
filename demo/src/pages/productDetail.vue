@@ -29,10 +29,10 @@
             <connect-us/>
         </div>
         <div class="right-label">
-            <div class="product-detail">湖北通山葡萄园、湖北黄石葡萄园</div>
-            <div class="prodct-day grey">更新时间：2019/8/16 14:54:28</div>
+            <div class="product-detail">{{detaillist.title}}</div>
+            <div class="prodct-day grey">更新时间：{{utils.transformTime(detaillist.created_time)}}</div>
             <div class="prodct-content">
-                <img src="http://img3.jqw.com/2017/01/17/1744317/product/b201908161454271880.jpg">
+                <img :src="detaillist.image">
             </div>
             <div class="prodct-bot">
                 <el-button type="primary" @click="buy()">立即购买</el-button>
@@ -86,55 +86,16 @@ export default {
             dialogVisible: false,
             price: '10',
             num: 1,
-            adress: ''
+            adress: '',
+            detaillist: {},
 
         };
     },
     components: {
         connectUs
     },
+    mounted() { this.productDetlist() },
     methods: {
-        // 微信授权登录
-        setWxerwma() {
-            const s = document.createElement('script')
-            s.type = 'text/javascript'
-            s.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js'
-            const wxElement = document.body.appendChild(s)
-            const el = document.getElementById('#weixin')
-
-            wxElement.onload = function() {
-                var obj = new WxLogin({
-                    id: el, // 需要显示的容器id
-                    appid: 'wx77a0e06751d42ca0', // 公众号appid wx*******（需去微信公众平台申请）
-                    scope: 'snsapi_login', // 网页默认即可
-                    redirect_uri: encodeURIComponent('http://localhost:8080/#/'), // 授权成功后回调的url
-                    state: Math.ceil(Math.random() * 1000), // 可设置为简单的随机数加session用来校验
-                    style: 'black', // 提供"black"、"white"可选。二维码的样式
-                    href: '' // 外部css文件url，需要https
-                })
-            }
-        },
-        // 点击购买
-        buy() {
-            if (!sessionStorage.getItem('token')) {
-                // this.setWxerwma();
-                this.showModal()
-            } else {
-                this.showModal()
-            }
-
-        },
-        // 确认
-        comfirm() {
-            // 调取后台购买接口
-            let data = {
-                price: this.price,
-                num: this.num,
-                adress: this.adress
-            }
-            console.log(data, 'data222')
-        },
-        //清空弹窗内容
         resetModal() {
 
         },
@@ -156,7 +117,63 @@ export default {
             console.log(value, 'value');
             let price = 10;
             this.price = price * value
+        },
+        productDetlist() {
+            let that = this
+            this.$axios.get('http://orcahrd.natapp1.cc/Orchard/product/findProductById.do', {
+                params: {
+                    id: that.$route.query.id
+                }
+            })
+                .then(function(res) {
+                    that.detaillist = res.data.data
+                    console.log(res.data.data)
+                })
         }
+
+
+        // 微信授权登录
+        // setWxerwma() {
+        //     const s = document.createElement('script')
+        //     s.type = 'text/javascript'
+        //     s.src = 'https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js'
+        //     const wxElement = document.body.appendChild(s)
+        //     const el = document.getElementById('#weixin')
+
+        //     wxElement.onload = function() {
+        //         var obj = new WxLogin({
+        //             id: el, // 需要显示的容器id
+        //             appid: 'wx77a0e06751d42ca0', // 公众号appid wx*******（需去微信公众平台申请）
+        //             scope: 'snsapi_login', // 网页默认即可
+        //             redirect_uri: encodeURIComponent('http://localhost:8080/#/'), // 授权成功后回调的url
+        //             state: Math.ceil(Math.random() * 1000), // 可设置为简单的随机数加session用来校验
+        //             style: 'black', // 提供"black"、"white"可选。二维码的样式
+        //             href: '' // 外部css文件url，需要https
+        //         })
+        //     }
+        // },
+        // 点击购买
+        // buy() {
+        //     if (!sessionStorage.getItem('token')) {
+        //         // this.setWxerwma();
+        //         this.showModal()
+        //     } else {
+        //         this.showModal()
+        //     }
+
+        // },
+        // 确认
+        // comfirm() {
+        //     // 调取后台购买接口
+        //     let data = {
+        //         price: this.price,
+        //         num: this.num,
+        //         adress: this.adress
+        //     }
+        //     console.log(data, 'data222')
+        // },
+        //清空弹窗内容
+
     },
 }
 </script >
@@ -213,6 +230,11 @@ export default {
 .prodct-content {
     padding: 10px;
     text-align: center;
+}   
+
+.prodct-content img {
+    width: 439px;
+    height: 588px;
 }
 
 .prodct-bot {

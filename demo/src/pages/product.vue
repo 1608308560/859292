@@ -20,14 +20,14 @@
 
                     <div class="link_more flex flex-hw">
 
-                        <div class="list-details" @click="rtproDet()">
-                            <div><img src="../assets/img/1001.png"></div>
+                        <div class="list-details" v-for="(item,index) in productList.records" @click="rtproDet(item)" :key="index">
+                            <div><img :src="item.image"></div>
                             <div class="list-name">
-                                <a href="javascript"></a>爱少女案发安利的爱少女案发安利的</div>
+                                <a href="javascript"></a>{{item.name}}</div>
                         </div>
 
                     </div>
-                    <el-pagination background layout="prev, pager, next" :total="1000">
+                    <el-pagination background layout="prev, pager, next" :total="rowCount" :page-size="pageSize" @current-change="currentChange">
                     </el-pagination>
                 </div>
             </div>
@@ -41,32 +41,51 @@ export default {
     data() {
         return {
             pageCurrent: 1,
-            productList:[]
+            productList: [],
+            rowCount: 0,
+            pageSize: 10
         };
     },
     components: {
         connectUs
     },
     mounted() {
-
+        this.rproList()
     },
     methods: {
-        rtproDet() {
-            let that = this;
-            this.$axios.get("http://www.orchardteam.com/product/findProductByProductCenterId.do?",
-                
-                {
-                    params: {
-                        id: (item && item.id) || that.TabList[0].id,
-                        pageCurrent: (item && item.id) || that.pageCurrent
-                    }
+        //商品详情
+        rtproDet(item) {
+            console.log(this.productList.pageCurrent, 'pageCurrent')
+              console.log( item.id, 'id')
+            this.$router.push({
+                path: "productDetail",
+                query: {
+                    pageCurrent: this.productList.pageCurrent,
+                    id: item.id
                 }
-                )
+            });
+        },
+        currentChange(val) {
+            this.pageCurrent = val
+            this.rproList()
+
+        },
+        rproList() {
+            let that = this
+            this.$axios.get('http://orcahrd.natapp1.cc/Orchard/product/findProduct.do', {
+                params: {
+                    pageCurrent: that.pageCurrent || (item && item.id)
+                }
+            })
                 .then(function(res) {
-                    that.productList = res.data.data;
-                });
+                    that.productList = res.data.data
+                    console.log(res.data.data)
+                    that.rowCount = res.data.data.rowCount
+                    that.pageSize = res.data.data.pageSize
+                })
         }
-    },
+
+    }
 
 }
 </script >

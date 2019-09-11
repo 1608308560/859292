@@ -47,7 +47,6 @@ export default {
     },
     mounted() {
 
-
     },
     methods: {
         checkRouter(item, index) {
@@ -63,7 +62,8 @@ export default {
     text-align: center;
     background: url('../assets/img/menubg.jpg') repeat-x left bottom;
 }
-.active{
+
+.active {
     background: url(../assets/img/navabg.jpg) no-repeat left bottom;
 }
 

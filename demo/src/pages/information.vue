@@ -19,12 +19,12 @@
                     <div class="label_head " style="padding-left: 15px;font-weight:bold">供求信息</div>
 
                     <div class="link_more">
-                        <div v-for="(item, index) in listday" :key="index" class="title-nav flex">
+                        <div v-for="(item, index) in listday.records" :key="index" class="title-nav flex">
                             <div class="list-content">{{item.title}}</div>
-                            <div class="list-day">2019-07-31</div>
+                            <div class="list-day">{{utils.transformTime(item.update_time)}}</div>
                         </div>
                     </div>
-                    <el-pagination background layout="prev, pager, next" :total="1000" @current-change="currentChange">
+                    <el-pagination background layout="prev, pager, next" :total="rowCount" :page-size="pageSize" @current-change="currentChange">
                     </el-pagination>
                 </div>
             </div>
@@ -37,7 +37,10 @@ import connectUs from '../components/connectUs'
 export default {
     data() {
         return {
-            listday: []
+            listday: [],
+            pageCurrent: 1,
+            pageSize: 10,
+            rowCount: 0
         };
     },
     components: {
@@ -46,17 +49,32 @@ export default {
     methods: {
         currentChange(val) {
             console.log(val)
+            this.pageCurrent = val
+            this.findEnterpriseDynamic()
+
+        },
+        findEnterpriseDynamic() {
+            let that = this
+            this.$axios.get('http://orcahrd.natapp1.cc/Orchard/enterprise/doFindEnterpriseDynamicPage.do', {
+                params: {
+                    pageCurrent: that.pageCurrent || (item && item.id)
+                }
+            })
+                .then(function(res) {
+                    console.log(res.data, '111')
+                    that.listday = res.data.data
+                    that.rowCount = res.data.data.rowCount
+                    that.pageSize = res.data.data.pageSize
+                })
+                .catch(function(err) {
+                    console.log(err)
+                });
         }
     },
     mounted() {
-        let that = this
-
-        this.$axios.get('http://orcahrd.natapp1.cc/Orchard/enterprise/findEnterpriseDynamic.do')
-            .then(function(res) {
-                that.listday = res.data.dynamicList
-            })
-
+        this.findEnterpriseDynamic()
     },
+
 }
 </script >
 <style  scoped>
@@ -71,9 +89,11 @@ export default {
     text-align: left;
     line-height: 34px;
 }
+
 .el-pagination {
     text-align: center;
 }
+
 .label_content h1 {
     font-size: 12px;
     height: 25px;
